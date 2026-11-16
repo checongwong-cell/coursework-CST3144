@@ -1,0 +1,282 @@
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+header h1 {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+header p {
+  font-size: 20px;
+}
+
+h2 {
+  font-size: 30px;
+  margin-bottom: 25px;
+}
+
+.lessons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.lesson-card {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 25px;
+  background: white;
+}
+
+.lesson-icon {
+  font-size: 45px;
+  margin-bottom: 15px;
+}
+
+.lesson-card h3 {
+  font-size: 24px;
+}
+
+.lesson-card p {
+  font-size: 17px;
+}
+
+.lesson-card button {
+  padding: 10px 18px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+@media (max-width: 800px) {
+  .lessons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .lessons {
+    grid-template-columns: 1fr;
+  }
+}
+.sorting {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.sorting select {
+  padding: 8px;
+  font-size: 16px;
+}
+
+.cart {
+  margin: 20px 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cart-items {
+  max-width: 800px;
+  margin: 20px auto 40px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.cart-items h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.cart-item button {
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+.cart-items p {
+  text-align: right;
+  font-size: 20px;
+  margin-bottom: 0;
+}
+
+/* Cart navigation button */
+.cart-button {
+  display: inline-block;
+  margin: 12px auto 20px;
+  padding: 12px 24px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.cart-button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* Cart section */
+.cart-items {
+  max-width: 850px;
+  margin: 25px auto;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.cart-items h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cart-item span:first-child {
+  font-weight: 600;
+}
+
+.cart-item button {
+  padding: 9px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.cart-item button:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.cart-items > p:last-child {
+  margin-top: 24px;
+  text-align: right;
+  font-size: 23px;
+}
+
+/* Checkout section */
+.checkout {
+  max-width: 850px;
+  margin: 25px auto;
+  padding: 28px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.checkout h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.checkout label {
+  display: block;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+.checkout input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #ffffff;
+  font-size: 16px;
+}
+
+.checkout input:focus {
+  outline: 2px solid #93c5fd;
+  border-color: #2563eb;
+}
+
+.checkout button {
+  width: 100%;
+  padding: 13px;
+  margin-top: 5px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.checkout button:hover {
+  background: #15803d;
+}
+
+/* Keep the layout usable on phones */
+@media (max-width: 600px) {
+  .cart-items,
+  .checkout {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 18px;
+  }
+
+  .cart-item {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .cart-items > p:last-child {
+    font-size: 20px;
+  }
+}
+
+.lesson-icon {
+  width: 100%;
+  height: 150px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.lesson-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
