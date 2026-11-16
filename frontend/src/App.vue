@@ -61,6 +61,21 @@ const checkout = async () => {
     if (!response.ok) {
       throw new Error('Order submission failed')
     }
+    
+    for (const item of cart.value) {
+  const updateResponse = await fetch(
+    `https://m01083489-server.onrender.com/lessons/${item.id}`,
+    {
+      method: 'PUT'
+    }
+  )
+
+  if (!updateResponse.ok) {
+    throw new Error('Failed to update lesson spaces')
+  }
+}
+
+await fetchLessons()
 
     alert(`Thank you ${customer.value.name}! Your order has been placed.`)
 
