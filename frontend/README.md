@@ -30,9 +30,29 @@ npm install
 ```sh
 npm run dev
 ```
+## Installation and Setup
 
-### Compile and Minify for Production
+### Requirements
+- Node.js
+- npm
 
-```sh
+### Install dependencies
+```bash
+cd frontend
+npm install
+```
+
+### Run development server
+```bash
+npm run dev
+```
+
+### Build for production
+```bash
 npm run build
+```
+
+### Preview production build
+```bash
+npm run preview
 ```
