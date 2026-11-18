@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import WeatherApp from './weatherapp.vue'
 const showCart = ref(false)
 
 const cart = ref([])
@@ -226,9 +227,11 @@ const sortedLessons = computed(() => {
     </main>
 
     <!-- LESSONS PAGE -->
-    <main v-else>
+<main v-else>
 
-      <h2>Lessons</h2>
+  <WeatherApp />
+
+  <h2>Lessons</h2>
 
       <div class="sorting">
 

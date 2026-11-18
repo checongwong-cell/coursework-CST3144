@@ -280,3 +280,471 @@ button:disabled {
   object-fit: cover;
   display: block;
 }
+
+/* =================================
+   MODERN WEBSITE DESIGN
+================================= */
+
+body {
+  margin: 0;
+  background: #f5f7fb;
+  color: #1e293b;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 30px;
+}
+
+/* Header */
+
+header {
+  padding: 55px 20px 35px;
+  margin-bottom: 35px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border-radius: 20px;
+}
+
+header h1 {
+  color: #1e3a8a;
+  font-size: 42px;
+  font-weight: 800;
+}
+
+header p {
+  color: #475569;
+}
+
+/* Section headings */
+
+h2 {
+  color: #172554;
+  font-weight: 750;
+}
+
+/* Sorting controls */
+
+.sorting {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 30px;
+  padding: 18px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+}
+
+.sorting label {
+  font-weight: 600;
+  color: #475569;
+}
+
+.sorting select {
+  padding: 11px 35px 11px 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #1e293b;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.sorting select:hover,
+.sorting select:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+/* Lesson cards */
+
+.lessons {
+  gap: 28px;
+}
+
+.lesson-card {
+  padding: 22px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.lesson-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.10);
+}
+
+.lesson-icon {
+  height: 175px;
+  border-radius: 12px;
+  background: #eff6ff;
+}
+
+.lesson-card h3 {
+  color: #1e3a8a;
+  font-size: 23px;
+  margin-top: 18px;
+}
+
+.lesson-card p {
+  color: #475569;
+  line-height: 1.6;
+}
+
+/* Buttons */
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 11px 19px;
+  background: #2563eb;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+button:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Cart navigation */
+
+.cart-button {
+  padding: 13px 26px;
+  background: #1d4ed8;
+  border-radius: 10px;
+  font-size: 17px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.cart-button:hover {
+  background: #1e40af;
+}
+
+/* Cart section */
+
+.cart-items {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 5px 20px rgba(15, 23, 42, 0.06);
+}
+
+.cart-items h2 {
+  color: #1e3a8a;
+}
+
+.cart-item {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cart-item button {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.cart-item button:hover {
+  background: #ffe4e6;
+}
+
+.cart-items > p:last-child {
+  color: #1e3a8a;
+  font-weight: 800;
+}
+
+/* Checkout */
+
+.checkout {
+  background: white;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+}
+
+.checkout h2 {
+  color: #1e3a8a;
+}
+
+.checkout button {
+  background: #16a34a;
+}
+
+.checkout button:hover {
+  background: #15803d;
+}
+
+/* Back button - if your button uses this class */
+
+.back-button {
+  display: inline-block;
+  margin: 15px 0 20px;
+  padding: 10px 18px;
+  background: #e2e8f0;
+  color: #334155;
+  border-radius: 8px;
+}
+
+.back-button:hover {
+  background: #cbd5e1;
+}
+
+/* Responsive layout */
+
+@media (max-width: 800px) {
+  .app {
+    padding: 25px 18px;
+  }
+
+  header h1 {
+    font-size: 34px;
+  }
+}
+
+@media (max-width: 500px) {
+  .app {
+    padding: 15px;
+  }
+
+  .sorting {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sorting select {
+    width: 100%;
+  }
+
+  .lesson-card {
+    padding: 17px;
+  }
+}
+
+/* WEATHER APP */
+.weather-app {
+  margin: 45px 0;
+  padding: 30px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+}
+
+.weather-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.weather-heading h1 {
+  color: #1e3a8a;
+  font-size: 30px;
+  margin: 0 0 8px;
+}
+
+.weather-heading p {
+  color: #64748b;
+  margin: 0;
+  font-size: 16px;
+}
+
+.weather-heading-icon {
+  font-size: 48px;
+}
+
+.weather-search {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.weather-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  font-size: 16px;
+}
+
+.weather-search input:focus {
+  outline: 2px solid #93c5fd;
+  border-color: #2563eb;
+}
+
+.weather-search button {
+  padding: 13px 22px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.weather-search button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+.weather-search button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.weather-message {
+  color: #2563eb;
+}
+
+.weather-error {
+  padding: 12px;
+  color: #b91c1c;
+  background: #fee2e2;
+  border-radius: 8px;
+}
+
+.weather-result {
+  margin-top: 30px;
+}
+
+.weather-city {
+  margin-bottom: 20px;
+}
+
+.weather-city h2 {
+  color: #1e3a8a;
+  font-size: 26px;
+  margin-bottom: 5px;
+}
+
+.weather-city p {
+  color: #64748b;
+  margin-top: 0;
+}
+
+/* Horizontal weather details */
+.weather-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 35px;
+}
+
+.weather-detail-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 22px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 13px;
+  min-width: 0;
+}
+
+.detail-icon {
+  font-size: 32px;
+}
+
+.weather-detail-card p {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0 0 7px;
+}
+
+.weather-detail-card h3 {
+  color: #1e3a8a;
+  font-size: 19px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Forecast */
+.forecast-section h2 {
+  color: #1e3a8a;
+  font-size: 23px;
+  margin-bottom: 18px;
+}
+
+.forecast-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.forecast-card {
+  padding: 20px;
+  text-align: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: 0.2s;
+}
+
+.forecast-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+}
+
+.forecast-card h3 {
+  color: #334155;
+  margin: 0 0 12px;
+}
+
+.forecast-icon {
+  font-size: 30px;
+}
+
+.forecast-card p {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.forecast-card .forecast-temperature {
+  color: #1e3a8a;
+  font-size: 19px;
+  font-weight: bold;
+}
+
+/* Responsive layout */
+@media (max-width: 700px) {
+  .weather-details,
+  .forecast-list {
+    grid-template-columns: 1fr;
+  }
+
+  .weather-heading h1 {
+    font-size: 25px;
+  }
+}
+
+@media (max-width: 450px) {
+  .weather-app {
+    padding: 18px;
+  }
+
+  .weather-search {
+    flex-direction: column;
+  }
+
+  .weather-search button {
+    width: 100%;
+  }
+}
+

@@ -1,4 +1,3 @@
-
 <script setup>
 import { ref, onMounted } from 'vue'
 
@@ -35,33 +34,89 @@ onMounted(fetchWeather)
 
 <template>
   <main class="weather-app">
-    <h1>Weather App</h1>
 
-    <form @submit.prevent="fetchWeather">
-      <input v-model="city" placeholder="Enter a city" />
-      <button type="submit">Get Weather</button>
+    <div class="weather-heading">
+      <div>
+        <h1>Weather App</h1>
+        <p>Check the weather and forecast for your city.</p>
+      </div>
+      <span class="weather-heading-icon">☀️</span>
+    </div>
+
+    <form class="weather-search" @submit.prevent="fetchWeather">
+      <input
+        v-model="city"
+        placeholder="Enter a city"
+        aria-label="City name"
+      />
+      <button type="submit" :disabled="loading">
+        {{ loading ? 'Loading...' : 'Get Weather' }}
+      </button>
     </form>
 
-    <p v-if="loading">Loading weather...</p>
-    <p v-if="error">{{ error }}</p>
+    <p v-if="loading" class="weather-message">
+      Loading weather...
+    </p>
+
+    <p v-if="error" class="weather-error">
+      {{ error }}
+    </p>
 
     <section v-if="weather" class="weather-result">
-      <h2>{{ city }}</h2>
-      <p>Temperature: {{ weather.temperature }}</p>
-      <p>Wind: {{ weather.wind }}</p>
-      <p>Conditions: {{ weather.description }}</p>
 
-      <h3>Forecast</h3>
+      <div class="weather-city">
+        <h2>📍 {{ city }}</h2>
+        <p>Current weather conditions</p>
+      </div>
 
-      <ul>
-        <li
-          v-for="(day, index) in weather.forecast"
-          :key="index"
-        >
-          {{ day.day }} — {{ day.temperature }},
-          Wind: {{ day.wind }}
-        </li>
-      </ul>
+      <div class="weather-details">
+
+        <div class="weather-detail-card">
+          <span class="detail-icon">🌡️</span>
+          <div>
+            <p>Temperature</p>
+            <h3>{{ weather.temperature }}</h3>
+          </div>
+        </div>
+
+        <div class="weather-detail-card">
+          <span class="detail-icon">💨</span>
+          <div>
+            <p>Wind</p>
+            <h3>{{ weather.wind }}</h3>
+          </div>
+        </div>
+
+        <div class="weather-detail-card">
+          <span class="detail-icon">🌤️</span>
+          <div>
+            <p>Conditions</p>
+            <h3>{{ weather.description }}</h3>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="forecast-section">
+        <h2>📅 Weather Forecast</h2>
+
+        <div class="forecast-list">
+          <div
+            v-for="(day, index) in weather.forecast"
+            :key="index"
+            class="forecast-card"
+          >
+            <h3>{{ day.day }}</h3>
+            <span class="forecast-icon">🌤️</span>
+            <p class="forecast-temperature">
+              {{ day.temperature }}
+            </p>
+            <p>💨 {{ day.wind }}</p>
+          </div>
+        </div>
+      </div>
+
     </section>
+
   </main>
 </template>
