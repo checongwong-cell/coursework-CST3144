@@ -1,6 +1,8 @@
+
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import WeatherApp from './weatherapp.vue'
+
 const showCart = ref(false)
 
 const cart = ref([])
@@ -11,10 +13,13 @@ const customer = ref({
   address: ''
 })
 
+const lessons = ref([])
+
 const cartTotal = computed(() => {
   return cart.value.reduce((total, item) => total + item.price, 0)
 })
 
+// Remove lesson from cart and restore its available space
 const removeFromCart = (index) => {
   const lesson = cart.value[index]
 
@@ -29,57 +34,109 @@ const removeFromCart = (index) => {
   cart.value.splice(index, 1)
 }
 
+// Add lesson to cart
 const addToCart = (lesson) => {
   if (lesson.space > 0) {
     lesson.space--
-    cart.value.push(lesson)
+    cart.value.push({ ...lesson })
   }
 }
 
+// Fetch lessons from the backend
+const fetchLessons = async () => {
+  try {
+    const response = await fetch(
+      'https://m01083489-server.onrender.com/lessons'
+    )
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch lessons')
+    }
+
+    const data = await response.json()
+    lessons.value = data
+
+  } catch (error) {
+    console.error('Error fetching lessons:', error)
+  }
+}
+
+// Checkout and submit order
 const checkout = async () => {
   if (
-    customer.value.name === '' ||
-    customer.value.phone === '' ||
-    customer.value.address === ''
+    customer.value.name.trim() === '' ||
+    customer.value.phone.trim() === '' ||
+    customer.value.address.trim() === ''
   ) {
     alert('Please fill in all fields.')
     return
   }
 
+  if (cart.value.length === 0) {
+    alert('Your cart is empty.')
+    return
+  }
+
   try {
-    const response = await fetch('https://m01083489-server.onrender.com/orders', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        customer: customer.value,
-        items: cart.value,
-        total: cartTotal.value
-      })
-    })
+    // Save order to MongoDB
+    const response = await fetch(
+      'https://m01083489-server.onrender.com/orders',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          customer: customer.value,
+          items: cart.value,
+          total: cartTotal.value
+        })
+      }
+    )
 
     if (!response.ok) {
       throw new Error('Order submission failed')
     }
-    
-    for (const item of cart.value) {
-  const updateResponse = await fetch(
-    `https://m01083489-server.onrender.com/lessons/${item.id}`,
-    {
-      method: 'PUT'
+
+    // Find unique lesson IDs in the cart
+    const updatedLessonIds = [
+      ...new Set(cart.value.map(item => item.id))
+    ]
+
+    // Update available spaces in MongoDB
+    for (const lessonId of updatedLessonIds) {
+      const lesson = lessons.value.find(
+        item => item.id === lessonId
+      )
+
+      if (!lesson) {
+        throw new Error('Lesson not found')
+      }
+
+      const updateResponse = await fetch(
+        `https://m01083489-server.onrender.com/lessons/${lessonId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            space: lesson.space
+          })
+        }
+      )
+
+      if (!updateResponse.ok) {
+        throw new Error('Failed to update lesson spaces')
+      }
     }
-  )
 
-  if (!updateResponse.ok) {
-    throw new Error('Failed to update lesson spaces')
-  }
-}
-
-await fetchLessons()
+    // Refresh lessons using updated database information
+    await fetchLessons()
 
     alert(`Thank you ${customer.value.name}! Your order has been placed.`)
 
+    // Clear cart and customer details
     cart.value = []
 
     customer.value = {
@@ -88,47 +145,24 @@ await fetchLessons()
       address: ''
     }
 
+    showCart.value = false
+
   } catch (error) {
     console.error('Checkout error:', error)
     alert('Unable to place your order. Please try again.')
   }
 }
 
-  alert(`Thank you ${customer.value.name}! Your order has been placed.`)
-
-  cart.value = []
-
-  customer.value = {
-    name: '',
-    phone: '',
-    address: ''
-  }
-
-
-const lessons = ref([])
-
-const fetchLessons = async () => {
-  try {
-    const response = await fetch('https://m01083489-server.onrender.com/lessons')
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch lessons')
-    }
-
-    const data = await response.json()
-    lessons.value = data
-  } catch (error) {
-    console.error('Error fetching lessons:', error)
-  }
-}
-
+// Load lessons when the application starts
 onMounted(() => {
   fetchLessons()
 })
 
+// Sorting options
 const sortBy = ref('topic')
 const sortOrder = ref('ascending')
 
+// Sort lessons by selected attribute
 const sortedLessons = computed(() => {
   const sorted = [...lessons.value]
 
@@ -156,7 +190,6 @@ const sortedLessons = computed(() => {
 })
 </script>
 
-```vue
 <template>
   <div class="app">
 
@@ -227,11 +260,11 @@ const sortedLessons = computed(() => {
     </main>
 
     <!-- LESSONS PAGE -->
-<main v-else>
+    <main v-else>
 
-  <WeatherApp />
+      <WeatherApp />
 
-  <h2>Lessons</h2>
+      <h2>Lessons</h2>
 
       <div class="sorting">
 
@@ -262,8 +295,8 @@ const sortedLessons = computed(() => {
         >
 
           <div class="lesson-icon">
-  <img :src="lesson.image" :alt="lesson.topic">
-</div>
+            <img :src="lesson.image" :alt="lesson.topic">
+          </div>
 
           <h3>{{ lesson.topic }}</h3>
 
@@ -286,7 +319,7 @@ const sortedLessons = computed(() => {
             @click="addToCart(lesson)"
             :disabled="lesson.space === 0"
           >
-            Add to Cart
+            {{ lesson.space === 0 ? 'Sold Out' : 'Add to Cart' }}
           </button>
 
         </div>
@@ -297,4 +330,3 @@ const sortedLessons = computed(() => {
 
   </div>
 </template>
-```
