@@ -3,6 +3,9 @@
 import { ref, computed, onMounted } from 'vue'
 import WeatherApp from './weatherapp.vue'
 
+const API_URL = 'https://m01083489-server.onrender.com'
+const LOCAL_API_URL = 'http://localhost:3000'
+
 const showCart = ref(false)
 
 const cart = ref([])
@@ -14,6 +17,12 @@ const customer = ref({
 })
 
 const lessons = ref([])
+
+// Search variables
+const searchQuery = ref('')
+const searchResults = ref(null)
+const searchError = ref('')
+const isSearching = ref(false)
 
 const cartTotal = computed(() => {
   return cart.value.reduce((total, item) => total + item.price, 0)
@@ -45,9 +54,7 @@ const addToCart = (lesson) => {
 // Fetch lessons from the backend
 const fetchLessons = async () => {
   try {
-    const response = await fetch(
-      'https://m01083489-server.onrender.com/lessons'
-    )
+    const response = await fetch(`${API_URL}/lessons`)
 
     if (!response.ok) {
       throw new Error('Failed to fetch lessons')
@@ -59,6 +66,43 @@ const fetchLessons = async () => {
   } catch (error) {
     console.error('Error fetching lessons:', error)
   }
+}
+
+// Search lessons using the backend API
+const searchLessons = async () => {
+  if (searchQuery.value.trim() === '') {
+    clearSearch()
+    return
+  }
+
+  try {
+    isSearching.value = true
+    searchError.value = ''
+
+    const response = await fetch(
+  `${API_URL}/search?q=${encodeURIComponent(searchQuery.value)}`
+)
+
+    if (!response.ok) {
+      throw new Error('Search failed')
+    }
+
+    const data = await response.json()
+    searchResults.value = data
+
+  } catch (error) {
+    console.error('Search error:', error)
+    searchError.value = 'Unable to search lessons. Please try again.'
+  } finally {
+    isSearching.value = false
+  }
+}
+
+// Clear search and show all lessons
+const clearSearch = () => {
+  searchQuery.value = ''
+  searchResults.value = null
+  searchError.value = ''
 }
 
 // Checkout and submit order
@@ -79,20 +123,17 @@ const checkout = async () => {
 
   try {
     // Save order to MongoDB
-    const response = await fetch(
-      'https://m01083489-server.onrender.com/orders',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          customer: customer.value,
-          items: cart.value,
-          total: cartTotal.value
-        })
-      }
-    )
+    const response = await fetch(`${API_URL}/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        customer: customer.value,
+        items: cart.value,
+        total: cartTotal.value
+      })
+    })
 
     if (!response.ok) {
       throw new Error('Order submission failed')
@@ -114,7 +155,7 @@ const checkout = async () => {
       }
 
       const updateResponse = await fetch(
-        `https://m01083489-server.onrender.com/lessons/${lessonId}`,
+        `${API_URL}/lessons/${lessonId}`,
         {
           method: 'PUT',
           headers: {
@@ -162,9 +203,13 @@ onMounted(() => {
 const sortBy = ref('topic')
 const sortOrder = ref('ascending')
 
-// Sort lessons by selected attribute
+// Sort all lessons or search results
 const sortedLessons = computed(() => {
-  const sorted = [...lessons.value]
+  const sourceLessons = searchResults.value === null
+    ? lessons.value
+    : searchResults.value
+
+  const sorted = [...sourceLessons]
 
   sorted.sort((a, b) => {
     let valueA = a[sortBy.value]
@@ -266,6 +311,45 @@ const sortedLessons = computed(() => {
 
       <h2>Lessons</h2>
 
+      <!-- SEARCH SECTION -->
+      <div class="search-section">
+
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search by subject, location, price or spaces..."
+          @keyup.enter="searchLessons"
+        >
+
+        <button
+          @click="searchLessons"
+          :disabled="isSearching"
+        >
+          {{ isSearching ? 'Searching...' : 'Search' }}
+        </button>
+
+        <button
+          v-if="searchResults !== null"
+          @click="clearSearch"
+        >
+          Clear
+        </button>
+
+      </div>
+
+      <p v-if="searchError">
+        {{ searchError }}
+      </p>
+
+      <p v-else-if="searchResults !== null && searchResults.length === 0">
+        No matching lessons found.
+      </p>
+
+      <p v-else-if="searchResults !== null">
+        Found {{ searchResults.length }} matching lessons.
+      </p>
+
+      <!-- SORTING -->
       <div class="sorting">
 
         <label for="sortBy">Sort by:</label>
@@ -286,6 +370,7 @@ const sortedLessons = computed(() => {
 
       </div>
 
+      <!-- LESSON CARDS -->
       <div class="lessons">
 
         <div
