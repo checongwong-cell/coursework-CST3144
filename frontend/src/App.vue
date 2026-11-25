@@ -1,10 +1,8 @@
-
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import WeatherApp from './weatherapp.vue'
 
 const API_URL = 'https://m01083489-server.onrender.com'
-const LOCAL_API_URL = 'http://localhost:3000'
 
 const showCart = ref(false)
 
@@ -24,8 +22,26 @@ const searchResults = ref(null)
 const searchError = ref('')
 const isSearching = ref(false)
 
+// Teacher variables
+const teachers = ref([])
+const selectedTeacherId = ref('')
+const teacherLessons = ref(null)
+const teacherError = ref('')
+const isLoadingTeachers = ref(false)
+
 const cartTotal = computed(() => {
   return cart.value.reduce((total, item) => total + item.price, 0)
+})
+
+const isCheckoutValid = computed(() => {
+  const name = customer.value.name.trim()
+  const phone = customer.value.phone.trim()
+  const address = customer.value.address.trim()
+
+  const validName = /^[A-Za-z\s'-]+$/.test(name)
+  const validPhone = /^\d+$/.test(phone)
+
+  return validName && validPhone && address !== '' && cart.value.length > 0
 })
 
 // Remove lesson from cart and restore its available space
@@ -45,13 +61,20 @@ const removeFromCart = (index) => {
 
 // Add lesson to cart
 const addToCart = (lesson) => {
-  if (lesson.space > 0) {
-    lesson.space--
-    cart.value.push({ ...lesson })
+  const originalLesson = lessons.value.find(
+    item => item.id === lesson.id
+  )
+
+  if (originalLesson && originalLesson.space > 0) {
+    originalLesson.space--
+
+    cart.value.push({
+      ...originalLesson
+    })
   }
 }
 
-// Fetch lessons from the backend
+// Fetch all lessons
 const fetchLessons = async () => {
   try {
     const response = await fetch(`${API_URL}/lessons`)
@@ -60,15 +83,14 @@ const fetchLessons = async () => {
       throw new Error('Failed to fetch lessons')
     }
 
-    const data = await response.json()
-    lessons.value = data
+    lessons.value = await response.json()
 
   } catch (error) {
     console.error('Error fetching lessons:', error)
   }
 }
 
-// Search lessons using the backend API
+// Search lessons using backend API
 const searchLessons = async () => {
   if (searchQuery.value.trim() === '') {
     clearSearch()
@@ -79,16 +101,20 @@ const searchLessons = async () => {
     isSearching.value = true
     searchError.value = ''
 
+    // Searching all lessons, not just one teacher's lessons
+    selectedTeacherId.value = ''
+    teacherLessons.value = null
+    teacherError.value = ''
+
     const response = await fetch(
-  `${API_URL}/search?q=${encodeURIComponent(searchQuery.value)}`
-)
+      `${API_URL}/search?q=${encodeURIComponent(searchQuery.value)}`
+    )
 
     if (!response.ok) {
       throw new Error('Search failed')
     }
 
-    const data = await response.json()
-    searchResults.value = data
+    searchResults.value = await response.json()
 
   } catch (error) {
     console.error('Search error:', error)
@@ -98,21 +124,90 @@ const searchLessons = async () => {
   }
 }
 
-// Clear search and show all lessons
+// Clear search
 const clearSearch = () => {
   searchQuery.value = ''
   searchResults.value = null
   searchError.value = ''
 }
 
+// Fetch all teachers from MongoDB
+const fetchTeachers = async () => {
+  try {
+    isLoadingTeachers.value = true
+    teacherError.value = ''
+
+    const response = await fetch(`${API_URL}/teachers`)
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch teachers')
+    }
+
+    teachers.value = await response.json()
+
+  } catch (error) {
+    console.error('Teacher loading error:', error)
+    teacherError.value = 'Unable to load teachers.'
+  } finally {
+    isLoadingTeachers.value = false
+  }
+}
+
+// Fetch lessons belonging to a selected teacher
+const filterByTeacher = async () => {
+  // Selecting All Teachers shows every lesson
+  if (selectedTeacherId.value === '') {
+    teacherLessons.value = null
+    teacherError.value = ''
+    return
+  }
+
+  try {
+    teacherError.value = ''
+
+    // Clear search when selecting a teacher
+    clearSearch()
+
+    const response = await fetch(
+      `${API_URL}/teachers/${selectedTeacherId.value}/lessons`
+    )
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch teacher lessons')
+    }
+
+    const data = await response.json()
+
+    // Backend returns an object containing a lessons array
+    teacherLessons.value = data.lessons || []
+
+  } catch (error) {
+    console.error('Teacher lessons error:', error)
+    teacherLessons.value = []
+    teacherError.value = 'Unable to load this teacher\'s lessons.'
+  }
+}
+
 // Checkout and submit order
 const checkout = async () => {
-  if (
-    customer.value.name.trim() === '' ||
-    customer.value.phone.trim() === '' ||
-    customer.value.address.trim() === ''
-  ) {
+  const name = customer.value.name.trim()
+  const phone = customer.value.phone.trim()
+  const address = customer.value.address.trim()
+
+  if (!name || !phone || !address) {
     alert('Please fill in all fields.')
+    return
+  }
+
+  // Name must contain letters and spaces only
+  if (!/^[A-Za-z\s'-]+$/.test(name)) {
+    alert('Please enter a valid name using letters only.')
+    return
+  }
+
+  // Phone must contain numbers only
+  if (!/^\d+$/.test(phone)) {
+    alert('Please enter a valid phone number using numbers only.')
     return
   }
 
@@ -172,12 +267,11 @@ const checkout = async () => {
       }
     }
 
-    // Refresh lessons using updated database information
+    // Refresh lessons from MongoDB
     await fetchLessons()
 
     alert(`Thank you ${customer.value.name}! Your order has been placed.`)
 
-    // Clear cart and customer details
     cart.value = []
 
     customer.value = {
@@ -194,20 +288,25 @@ const checkout = async () => {
   }
 }
 
-// Load lessons when the application starts
+// Load data when application starts
 onMounted(() => {
   fetchLessons()
+  fetchTeachers()
 })
 
 // Sorting options
 const sortBy = ref('topic')
 const sortOrder = ref('ascending')
 
-// Sort all lessons or search results
+// Sort lessons from search, teacher selection or all lessons
 const sortedLessons = computed(() => {
-  const sourceLessons = searchResults.value === null
-    ? lessons.value
-    : searchResults.value
+  let sourceLessons = lessons.value
+
+  if (teacherLessons.value !== null) {
+    sourceLessons = teacherLessons.value
+  } else if (searchResults.value !== null) {
+    sourceLessons = searchResults.value
+  }
 
   const sorted = [...sourceLessons]
 
@@ -242,7 +341,11 @@ const sortedLessons = computed(() => {
       <h1>After School Activities</h1>
       <p>Find and book your favourite lessons.</p>
 
-      <button class="cart-button" @click="showCart = !showCart">
+      <button
+        class="cart-button"
+        :disabled="cart.length === 0"
+        @click="showCart = !showCart"
+      >
         🛒 Cart: {{ cart.length }}
       </button>
     </header>
@@ -297,9 +400,12 @@ const sortedLessons = computed(() => {
           <input v-model="customer.address" type="text">
         </label>
 
-        <button @click="checkout">
-          Checkout
-        </button>
+        <button
+  @click="checkout"
+  :disabled="!isCheckoutValid"
+>
+  Checkout
+</button>
       </div>
 
     </main>
@@ -349,6 +455,42 @@ const sortedLessons = computed(() => {
         Found {{ searchResults.length }} matching lessons.
       </p>
 
+      <!-- TEACHER SELECTION -->
+      <div class="teacher-section">
+
+        <h3>Find Lessons by Teacher</h3>
+
+        <label for="teacherSelect">
+          Select a teacher:
+        </label>
+
+        <select
+          id="teacherSelect"
+          v-model="selectedTeacherId"
+          @change="filterByTeacher"
+          :disabled="isLoadingTeachers"
+        >
+          <option value="">All Teachers</option>
+
+          <option
+            v-for="teacher in teachers"
+            :key="teacher.teacherId"
+            :value="teacher.teacherId"
+          >
+            {{ teacher.firstName }} {{ teacher.lastName }}
+          </option>
+        </select>
+
+        <p v-if="teacherError">
+          {{ teacherError }}
+        </p>
+
+        <p v-else-if="teacherLessons !== null">
+          Found {{ teacherLessons.length }} lessons for this teacher.
+        </p>
+
+      </div>
+
       <!-- SORTING -->
       <div class="sorting">
 
@@ -397,14 +539,14 @@ const sortedLessons = computed(() => {
 
           <p>
             <strong>Spaces available:</strong>
-            {{ lesson.space }}
+            {{ lessons.find(item => item.id === lesson.id)?.space ?? lesson.space }}
           </p>
 
           <button
             @click="addToCart(lesson)"
-            :disabled="lesson.space === 0"
+            :disabled="!lessons.find(item => item.id === lesson.id) || lessons.find(item => item.id === lesson.id).space === 0"
           >
-            {{ lesson.space === 0 ? 'Sold Out' : 'Add to Cart' }}
+            {{ lessons.find(item => item.id === lesson.id)?.space === 0 ? 'Sold Out' : 'Add to Cart' }}
           </button>
 
         </div>
